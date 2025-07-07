@@ -1,5 +1,6 @@
 <script>
 (function () {
+  // SHA-256 hashing function
   function hashString(str) {
     if (typeof str !== 'string' || str.length === 0) {
       return Promise.resolve('');
@@ -19,26 +20,26 @@
     });
   }
 
-  function convertNinjaFieldsToInputs(fields) {
+  // Convert fields and hash email/phone
+  function convertAndHashNinjaFields(fields) {
     var inputs = {};
     var promises = [];
 
     for (var key in fields) {
       if (fields.hasOwnProperty(key)) {
         var label = fields[key].label || '';
+        var slug = label.toLowerCase().replace(/\s+/g, "_");
         var value = fields[key].value || '';
-        var slug = label.toLowerCase().replace(/\s+/g, '_');
 
-        // Normalise phone formatting
         if (slug === 'phone') {
           value = value.replace(/[\(\)\s-]/g, '');
         }
 
+        // Check if this field should be hashed
         if (slug === 'email' || slug === 'phone') {
-          // Hash sensitive fields
           promises.push(
-            hashString(value).then(function (hashed) {
-              inputs['hashed_' + slug] = hashed;
+            hashString(value).then(function (hash) {
+              inputs['hashed_' + slug] = hash;
             })
           );
         } else {
@@ -52,19 +53,20 @@
     });
   }
 
+  // Main event listener
   jQuery(document).on('nfFormSubmitResponse', function (event, responseData) {
-    convertNinjaFieldsToInputs(responseData.response.data.fields).then(function (inputs) {
+    convertAndHashNinjaFields(responseData.response.data.fields).then(function (inputs) {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: 'form_submission_hashed',
         form_details: {
-          form_id: responseData.id || 'N/A',
+          form_id: responseData.id,
           form_name: responseData.settings.form_title || 'N/A'
         },
         form_data: inputs
       });
 
-      console.log('✅ Ninja Forms submission tracked', inputs);
+      console.log('✅ Pushed form_submission_hashed to dataLayer', inputs);
     });
   });
 })();
