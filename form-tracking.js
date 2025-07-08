@@ -1,42 +1,40 @@
 <script>
 (function () {
-  function convertFields(fields) {
-    var inputs = {};
+  if (typeof jQuery === 'undefined') {
+    console.warn('❌ jQuery not found. Script won’t run.');
+    return;
+  }
+
+  jQuery(document).on('nfFormSubmitResponse', function (event, responseData) {
+    console.log('🔥 Ninja Forms submitted');
+    console.log('🧾 responseData:', responseData);
+
+    var fields = responseData.response?.data?.fields || {};
+    var formTitle = responseData.settings?.form_title || 'N/A';
+
+    var formData = {};
     for (var key in fields) {
       if (fields.hasOwnProperty(key)) {
         var label = fields[key].label || '';
-        var slug = label.toLowerCase().replace(/\s+/g, "_");
         var value = fields[key].value || '';
-        inputs[slug] = value;
+        var slug = label.toLowerCase().replace(/\s+/g, '_');
+        formData[slug] = value;
       }
     }
-    return inputs;
-  }
 
-  function initFormTracking() {
-    console.log('✅ Ninja Forms is ready. Setting up tracking...');
-    
-    jQuery(document).on('nfFormSubmitResponse', function (event, responseData) {
-      console.log('🎯 Form Submitted — nfFormSubmitResponse fired!');
-      
-      var inputs = convertFields(responseData.response.data.fields || {});
-      window.dataLayer = window.dataLayer || [];
-      window.dataLayer.push({
-        event: 'form_submission_hashed',
-        form_details: {
-          form_id: responseData.id || 'N/A',
-          form_name: responseData.settings?.form_title || 'N/A'
-        },
-        form_data: inputs
-      });
+    console.log('📦 Form data:', formData);
 
-      console.log('✅ Data pushed to dataLayer:', inputs);
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event: 'form_submission_hashed',
+      form_details: {
+        form_id: responseData.id || 'N/A',
+        form_name: formTitle
+      },
+      form_data: formData
     });
-  }
 
-  // Wait until Ninja Forms is ready
-  jQuery(document).on('nfFormReady', function () {
-    initFormTracking();
+    console.log('✅ Pushed to dataLayer: form_submission_hashed');
   });
 })();
 </script>
