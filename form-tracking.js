@@ -1,4 +1,5 @@
-(function() {
+<script>
+  (function() {
     // Log script initialization
     console.log('Ninja Forms GTM tracking script initialized.');
 
@@ -65,3 +66,4 @@
     // Log when script is ready
     console.log('Ninja Forms tracking script ready and listening for submissions.');
 })();
+  </script>
