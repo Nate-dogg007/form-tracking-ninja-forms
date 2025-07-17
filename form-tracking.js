@@ -1,4 +1,33 @@
 <script>
+/*
+=========================================
+Ninja Forms Tracking Script for GTM
+Author: Nathan O'Connor
+=========================================
+
+📌 What this script does:
+- Listens for successful Ninja Forms submissions.
+- Extracts form field data (labels and values).
+- Hashes any fields that include "email" or "phone" using SHA-256 (for Enhanced Conversions).
+- Pushes a `form_submission_hashed` event to the dataLayer, including:
+  - form_id
+  - form_name (dynamically pulled from Ninja Forms global config)
+  - form_data (with plain and hashed fields)
+
+✅ How to use in Google Tag Manager:
+1. Create a new Custom HTML tag in GTM.
+2. Paste this entire script into the tag.
+3. Set the trigger to fire on All Pages (or where the Ninja Form appears).
+4. In GTM, use Data Layer Variables to capture:
+   - `form_data.hashed_email_address`
+   - `form_data.hashed_phone_number`
+   - `form_details.form_name`, etc.
+5. Connect these to Google Ads/GA4 as needed for tracking or Enhanced Conversions.
+
+This script is designed specifically for Ninja Forms using the `nfFormSubmitResponse` event.
+*/
+
+  
 (function () {
   // Hashing function (SHA-256)
   function hashString(str) {
